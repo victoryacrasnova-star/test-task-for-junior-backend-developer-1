@@ -55,7 +55,11 @@ postgres://postgres:postgres@localhost:5432/taskservice?sslmode=disable3. Зап
   "status": "new",
   "scheduled_for": "2026-04-20"
 }
+```
+
 specific_dates
+
+```json
 {
   "title": "Обзвон пациентов",
   "description": "specific dates test",
@@ -70,7 +74,12 @@ specific_dates
     ]
   }
 }
+```
+
 daily
+
+```json
+
 {
   "title": "Daily calls",
   "description": "daily recurrence test",
@@ -82,7 +91,12 @@ daily
     "every_n_days": 2
   }
 }
+```
+
 monthly
+
+```json
+
 {
   "title": "Monthly report",
   "description": "monthly recurrence test",
@@ -94,7 +108,11 @@ monthly
     "day_of_month": 15
   }
 }
+```
 odd_days
+
+```json
+
 {
   "title": "Odd days test",
   "description": "odd recurrence test",
@@ -105,7 +123,10 @@ odd_days
     "end_date": "2026-04-26"
   }
 }
+```
 even_days
+```json
+
 {
   "title": "Even days test",
   "description": "even recurrence test",
