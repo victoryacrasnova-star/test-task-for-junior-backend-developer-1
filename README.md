@@ -44,7 +44,11 @@ postgres://postgres:postgres@localhost:5432/taskservice?sslmode=disable3. Зап
 
 ## Примеры запросов
 
-Обычная задача
+## Примеры запросов
+
+### Обычная задача
+
+```json
 {
   "title": "Prepare release",
   "description": "Collect release notes and check migrations",
@@ -113,14 +117,16 @@ even_days
   }
 }
 
+```
+
 ## Как проверить
 
 После запуска API можно открыть Swagger и проверить создание:
-обычной задачи 
-задачи с specific_dates 
-задачи с daily 
-задачи с monthly 
-задачи с odd_days 
-задачи с even_days 
-Результат можно посмотреть через GET /tasks
+- обычной задачи 
+- задачи с specific_dates 
+- задачи с daily 
+- задачи с monthly 
+- задачи с odd_days 
+- задачи с even_days 
+- Результат можно посмотреть через GET /tasks
 
