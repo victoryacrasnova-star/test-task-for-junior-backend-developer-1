@@ -1,55 +1,126 @@
-# Task Service
+# Task Tracker API — Recurring Tasks Feature
 
-Сервис для управления задачами с HTTP API на Go.
+## О проекте
 
-## Требования
+Это API модуля трекера задач.  
+В рамках тестового задания добавлена поддержка периодических задач.
 
-- Go `1.23+`
-- Docker и Docker Compose
+При создании задачи можно передать настройки периодичности, после чего система создаёт обычные задачи на соответствующие даты.
 
-## Быстрый запуск через Docker Compose
+## Что реализовано
 
-```bash
-docker compose up --build
-```
+Поддержаны следующие типы периодичности:
 
-После запуска сервис будет доступен по адресу `http://localhost:8080`.
+- `daily` — каждые `n` дней
+- `monthly` — каждый месяц в указанное число (от 1 до 30)
+- `specific_dates` — задачи на конкретные даты
+- `odd_days` — задачи на нечётные дни месяца
+- `even_days` — задачи на чётные дни месяца
 
-Если `postgres` уже запускался ранее со старой схемой, пересоздай volume:
+Также сохранён базовый CRUD для обычных задач.
 
-```bash
-docker compose down -v
-docker compose up --build
-```
+## Принятое решение
 
-Причина в том, что SQL-файл из `migrations/0001_create_tasks.up.sql` монтируется в `docker-entrypoint-initdb.d` и применяется только при инициализации пустого data volume.
+Периодичность реализована как правило генерации обычных задач:
 
-## Swagger
+- `Task` остаётся отдельной конкретной задачей
+- `Recurrence` выделена как отдельная сущность в доменной модели
+- генерация задач выполняется сразу при создании запроса
+- каждая сгенерированная задача получает `scheduled_for`
 
-Swagger UI:
+## Допущения
 
-```text
-http://localhost:8080/swagger/
-```
+- Генерация периодических задач выполняется сразу, без фоновых джоб и scheduler.
+- Endpoint создания возвращает одну из созданных задач, а не весь список.
+- Для `monthly` используется число месяца от 1 до 30, в соответствии с условием задания.
+- Для `odd_days` и `even_days` генерация идёт по диапазону от `start_date` до `end_date`.
 
-OpenAPI JSON:
+## Запуск проекта
 
-```text
-http://localhost:8080/swagger/openapi.json
-```
+1. Создать базу данных PostgreSQL.
+2. По умолчанию используется строка подключения:
+postgres://postgres:postgres@localhost:5432/taskservice?sslmode=disable3. Запустить приложение:
+3. Запуск проекта: go run ./cmd/api
 
-## API
+## Примеры запросов
 
-Базовый префикс API:
+Обычная задача
+{
+  "title": "Prepare release",
+  "description": "Collect release notes and check migrations",
+  "status": "new",
+  "scheduled_for": "2026-04-20"
+}
+specific_dates
+{
+  "title": "Обзвон пациентов",
+  "description": "specific dates test",
+  "status": "new",
+  "recurrence": {
+    "type": "specific_dates",
+    "start_date": "2026-04-01",
+    "specific_dates": [
+      "2026-04-20",
+      "2026-04-22",
+      "2026-04-25"
+    ]
+  }
+}
+daily
+{
+  "title": "Daily calls",
+  "description": "daily recurrence test",
+  "status": "new",
+  "recurrence": {
+    "type": "daily",
+    "start_date": "2026-04-20",
+    "end_date": "2026-04-26",
+    "every_n_days": 2
+  }
+}
+monthly
+{
+  "title": "Monthly report",
+  "description": "monthly recurrence test",
+  "status": "new",
+  "recurrence": {
+    "type": "monthly",
+    "start_date": "2026-04-10",
+    "end_date": "2026-07-30",
+    "day_of_month": 15
+  }
+}
+odd_days
+{
+  "title": "Odd days test",
+  "description": "odd recurrence test",
+  "status": "new",
+  "recurrence": {
+    "type": "odd_days",
+    "start_date": "2026-04-20",
+    "end_date": "2026-04-26"
+  }
+}
+even_days
+{
+  "title": "Even days test",
+  "description": "even recurrence test",
+  "status": "new",
+  "recurrence": {
+    "type": "even_days",
+    "start_date": "2026-04-20",
+    "end_date": "2026-04-26"
+  }
+}
 
-```text
-/api/v1
-```
+## Как проверить
 
-Основные маршруты:
+После запуска API можно открыть Swagger и проверить создание:
+обычной задачи 
+задачи с specific_dates 
+задачи с daily 
+задачи с monthly 
+задачи с odd_days 
+задачи с even_days 
+Результат можно посмотреть через GET /tasks
 
-- `POST /api/v1/tasks`
-- `GET /api/v1/tasks`
-- `GET /api/v1/tasks/{id}`
-- `PUT /api/v1/tasks/{id}`
-- `DELETE /api/v1/tasks/{id}`
